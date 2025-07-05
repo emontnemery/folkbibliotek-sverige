@@ -18,6 +18,11 @@ ignore = [
 [lint.flake8-pytest-style]
 fixture-parentheses = false
 
+[lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+split-on-trailing-comma = false
+
 [lint.pyupgrade]
 keep-runtime-typing = true
 

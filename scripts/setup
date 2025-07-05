@@ -4,4 +4,8 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-python3 -m pip install --requirement requirements.txt
+if ! [ -x "$(command -v uv)" ]; then
+  python3 -m pip install uv
+fi
+
+uv pip install --requirement requirements.txt
