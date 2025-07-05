@@ -2,6 +2,10 @@
 
 from pathlib import Path
 
+BASE_URL = "https://folkbiblioteken.lund.se"
+USERNAME = "username"
+PASSWORD = "password"
+
 
 def load_fixture(filename: str) -> str:
     """Load a fixture."""

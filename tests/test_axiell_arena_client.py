@@ -30,7 +30,7 @@ PASSWORD = "password"
 
 @pytest.fixture
 async def client() -> AsyncGenerator[ArenaClient]:
-    """Return a go2rtc rest client."""
+    """Return an Axiell Arena client."""
     async with (
         aiohttp.ClientSession() as session,
     ):
