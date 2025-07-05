@@ -1,0 +1,14 @@
+{
+  "domain": "folkbibliotek_sverige",
+  "name": "Folkbibliotek Sverige",
+  "codeowners": [
+    "@emontnemery"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/emontnemery/folkbibliotek-sverige",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/emontnemery/folkbibliotek-sverige/issues",
+  "requirements": ["beautifulsoup4>=4.13.3"],
+  "version": "0.0.1"
+}
