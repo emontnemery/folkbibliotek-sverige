@@ -56,7 +56,7 @@ class FolkbibliotekSverigeDataUpdateCoordinator(
             LOGGER,
             config_entry=config_entry,
             name=DOMAIN,
-            update_interval=timedelta(seconds=30),
+            update_interval=timedelta(hours=2),
         )
         self._client = client
 
