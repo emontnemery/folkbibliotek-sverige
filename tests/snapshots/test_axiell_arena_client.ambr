@@ -1,0 +1,197 @@
+# serializer version: 1
+# name: test_success
+  list([
+    dict({
+      'author': 'Maas, Sarah J',
+      'expire_date': '2024-11-06',
+      'loan_date': '2024-10-23',
+      'record_id': '461553',
+      'renewable': False,
+      'title': 'Tower of dawn',
+      'type': 'Bok',
+      'year': '2017',
+    }),
+    dict({
+      'author': 'Anderberg, Bengt',
+      'expire_date': '2024-11-09',
+      'loan_date': '2024-07-13',
+      'record_id': '618578',
+      'renewable': True,
+      'title': 'Amorina',
+      'type': 'Bok',
+      'year': '2022',
+    }),
+    dict({
+      'author': 'Maas, Sarah J',
+      'expire_date': '2024-11-09',
+      'loan_date': '2024-07-29',
+      'record_id': '489758',
+      'renewable': True,
+      'title': 'Stormarnas imperium',
+      'type': 'Bok',
+      'year': '2019',
+    }),
+    dict({
+      'author': 'Nowlin, Laura',
+      'expire_date': '2024-11-09',
+      'loan_date': '2024-09-28',
+      'record_id': '599900',
+      'renewable': False,
+      'title': 'If he had been with me',
+      'type': 'Bok',
+      'year': '2019',
+    }),
+    dict({
+      'author': 'Maas, Sarah J',
+      'expire_date': '2024-11-19',
+      'loan_date': '2024-10-22',
+      'record_id': '497617',
+      'renewable': False,
+      'title': 'Kingdom of ash',
+      'type': 'Bok',
+      'year': '2018',
+    }),
+  ])
+# ---
+# name: test_success_need_login
+  list([
+    dict({
+      'author': 'Maas, Sarah J',
+      'expire_date': '2024-11-06',
+      'loan_date': '2024-10-23',
+      'record_id': '461553',
+      'renewable': False,
+      'title': 'Tower of dawn',
+      'type': 'Bok',
+      'year': '2017',
+    }),
+    dict({
+      'author': 'Anderberg, Bengt',
+      'expire_date': '2024-11-09',
+      'loan_date': '2024-07-13',
+      'record_id': '618578',
+      'renewable': True,
+      'title': 'Amorina',
+      'type': 'Bok',
+      'year': '2022',
+    }),
+    dict({
+      'author': 'Maas, Sarah J',
+      'expire_date': '2024-11-09',
+      'loan_date': '2024-07-29',
+      'record_id': '489758',
+      'renewable': True,
+      'title': 'Stormarnas imperium',
+      'type': 'Bok',
+      'year': '2019',
+    }),
+    dict({
+      'author': 'Nowlin, Laura',
+      'expire_date': '2024-11-09',
+      'loan_date': '2024-09-28',
+      'record_id': '599900',
+      'renewable': False,
+      'title': 'If he had been with me',
+      'type': 'Bok',
+      'year': '2019',
+    }),
+    dict({
+      'author': 'Maas, Sarah J',
+      'expire_date': '2024-11-19',
+      'loan_date': '2024-10-22',
+      'record_id': '497617',
+      'renewable': False,
+      'title': 'Kingdom of ash',
+      'type': 'Bok',
+      'year': '2018',
+    }),
+  ])
+# ---
+# name: test_success_no_loans
+  list([
+    dict({
+      'author': 'Lindgren, Astrid',
+      'created_date': '2024-11-09',
+      'expire_date': '2026-11-09',
+      'pickup_library': 'Stadsbiblioteket',
+      'queue_number': '1',
+      'record_id': '519954',
+      'title': 'Do you know Pippi Longstocking?',
+      'type': 'Bok',
+      'year': '2019',
+    }),
+  ])
+# ---
+# name: test_success_no_reservations
+  list([
+    dict({
+      'author': 'Simsion, Graeme',
+      'expire_date': '2025-03-14',
+      'loan_date': '2025-01-22',
+      'record_id': '501688',
+      'renewable': True,
+      'title': 'The Rosie result',
+      'type': 'Bok',
+      'year': '2019',
+    }),
+    dict({
+      'author': 'Cederlund, Charlotte',
+      'expire_date': '2025-03-16',
+      'loan_date': '2025-02-16',
+      'record_id': '556230',
+      'renewable': True,
+      'title': 'Så jävla operfekt',
+      'type': 'Bok',
+      'year': '2021',
+    }),
+  ])
+# ---
+# name: test_success_reservation_to_pick_up
+  list([
+    dict({
+      'author': 'Aveyard, Victoria',
+      'expire_date': '2025-03-13',
+      'loan_date': '2025-01-11',
+      'record_id': '417339',
+      'renewable': True,
+      'title': 'Glass sword',
+      'type': 'Bok',
+      'year': '2015',
+    }),
+    dict({
+      'author': 'Garber, Stephanie',
+      'expire_date': '2025-03-19',
+      'loan_date': '2025-02-19',
+      'record_id': '488795',
+      'renewable': True,
+      'title': 'Finale',
+      'type': 'Bok',
+      'year': '2019',
+    }),
+    dict({
+      'author': 'Garber, Stephanie',
+      'expire_date': '2025-03-19',
+      'loan_date': '2025-02-19',
+      'record_id': '531601',
+      'renewable': False,
+      'title': 'Legendary',
+      'type': 'Bok',
+      'year': '2018',
+    }),
+  ])
+# ---
+# name: test_success_reservation_to_pick_up.1
+  list([
+    dict({
+      'author': 'Yarros, Rebecca',
+      'created_date': '2025-01-04',
+      'pickup_date': '2025-02-26',
+      'pickup_library': ' Stadsbiblioteket',
+      'record_id': '641909',
+      'reservation_number': '431',
+      'title': 'Onyx storm',
+      'type': 'Bok',
+      'year': '2025',
+    }),
+  ])
+# ---
