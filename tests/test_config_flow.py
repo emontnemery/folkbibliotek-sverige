@@ -89,3 +89,38 @@ async def test_reauth_flow(
         CONF_URL: BASE_URL,
         CONF_USERNAME: USERNAME,
     }
+
+
+@pytest.mark.usefixtures("enable_custom_integrations")
+async def test_reconfigure_flow(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    responses: aioresponses,
+) -> None:
+    """Test that the reconfigure flow works."""
+    responses.get(
+        f"{BASE_URL}/protected/my-account/overview",
+        body=load_fixture("logged_in.html"),
+    )
+
+    mock_config_entry.add_to_hass(hass)
+
+    result = await mock_config_entry.start_reconfigure_flow(hass)
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "reconfigure"
+    assert not result["errors"]
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {CONF_PASSWORD: "new_password", CONF_URL: BASE_URL, CONF_USERNAME: USERNAME},
+    )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+    assert mock_config_entry.data == {
+        CONF_NAME: "John Doe",
+        CONF_PASSWORD: "new_password",
+        CONF_URL: BASE_URL,
+        CONF_USERNAME: USERNAME,
+    }
