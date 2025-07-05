@@ -45,20 +45,32 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> None:
+async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, str]:
     """
     Validate the user input allows us to connect.
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
-    client = ArenaClient(
-        session=async_get_clientsession(hass),
-        url=data[CONF_URL],
-        username=data[CONF_USERNAME],
-        password=data[CONF_PASSWORD],
-    )
+    try:
+        client = ArenaClient(
+            session=async_get_clientsession(hass),
+            url=data[CONF_URL],
+            username=data[CONF_USERNAME],
+            password=data[CONF_PASSWORD],
+        )
 
-    await client.get_account_overview()
+        await client.get_account_overview()
+    except ArenaError:
+        return {"base": "cannot_connect"}
+    except ArenaAccountLockedError:
+        return {"base": "account_locked"}
+    except ArenaInvalidCredentialsError:
+        return {"base": "invalid_credentials"}
+    except Exception:  # noqa: BLE001
+        LOGGER.exception("Unexpected exception")
+        return {"base": "unknown"}
+    else:
+        return {}
 
 
 class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -78,18 +90,7 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_USERNAME: user_input[CONF_USERNAME],
                 }
             )
-            try:
-                await validate_input(self.hass, user_input)
-            except ArenaError:
-                errors["base"] = "cannot_connect"
-            except ArenaAccountLockedError:
-                errors["base"] = "account_locked"
-            except ArenaInvalidCredentialsError:
-                errors["base"] = "invalid_credentials"
-            except Exception:  # noqa: BLE001
-                LOGGER.exception("Unexpected exception")
-                errors["base"] = "unknown"
-            else:
+            if not (errors := await validate_input(self.hass, user_input)):
                 return self.async_create_entry(
                     title=user_input[CONF_NAME], data=user_input
                 )
@@ -112,25 +113,41 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         config_entry_data = self._get_reauth_entry().data
 
-        if user_input is not None:
-            try:
-                await validate_input(self.hass, config_entry_data | user_input)
-            except ArenaError:
-                errors["base"] = "cannot_connect"
-            except ArenaAccountLockedError:
-                errors["base"] = "account_locked"
-            except ArenaInvalidCredentialsError:
-                errors["base"] = "invalid_credentials"
-            except Exception:  # noqa: BLE001
-                LOGGER.exception("Unexpected exception")
-                errors["base"] = "unknown"
-            else:
-                return self.async_update_reload_and_abort(
-                    self._get_reauth_entry(), data_updates=user_input
-                )
+        if user_input is not None and not (
+            errors := await validate_input(self.hass, user_input)
+        ):
+            return self.async_update_reload_and_abort(
+                self._get_reauth_entry(), data_updates=user_input
+            )
 
         return self.async_show_form(
             step_id="reauth_confirm",
+            data_schema=self.add_suggested_values_to_schema(
+                STEP_REAUTH_DATA_SCHEMA,
+                {
+                    CONF_URL: config_entry_data[CONF_URL],
+                    CONF_USERNAME: config_entry_data[CONF_USERNAME],
+                },
+            ),
+            errors=errors,
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfigure."""
+        errors: dict[str, str] = {}
+        config_entry_data = self._get_reconfigure_entry().data
+
+        if user_input is not None and not (
+            errors := await validate_input(self.hass, user_input)
+        ):
+            return self.async_update_reload_and_abort(
+                self._get_reconfigure_entry(), data_updates=user_input
+            )
+
+        return self.async_show_form(
+            step_id="reconfigure",
             data_schema=self.add_suggested_values_to_schema(
                 STEP_REAUTH_DATA_SCHEMA,
                 {
