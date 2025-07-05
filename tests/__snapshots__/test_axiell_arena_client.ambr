@@ -1,0 +1,42 @@
+# serializer version: 1
+# name: test_success
+  list([
+    LibraryLoan(record_id='461553', type='Bok', title='Tower of dawn', author='Maas, Sarah J', year='2017', loan_date='2024-10-23', expire_date='2024-11-06', renewable=False),
+    LibraryLoan(record_id='618578', type='Bok', title='Amorina', author='Anderberg, Bengt', year='2022', loan_date='2024-07-13', expire_date='2024-11-09', renewable=True),
+    LibraryLoan(record_id='489758', type='Bok', title='Stormarnas imperium', author='Maas, Sarah J', year='2019', loan_date='2024-07-29', expire_date='2024-11-09', renewable=True),
+    LibraryLoan(record_id='599900', type='Bok', title='If he had been with me', author='Nowlin, Laura', year='2019', loan_date='2024-09-28', expire_date='2024-11-09', renewable=False),
+    LibraryLoan(record_id='497617', type='Bok', title='Kingdom of ash', author='Maas, Sarah J', year='2018', loan_date='2024-10-22', expire_date='2024-11-19', renewable=False),
+  ])
+# ---
+# name: test_success_need_login
+  list([
+    LibraryLoan(record_id='461553', type='Bok', title='Tower of dawn', author='Maas, Sarah J', year='2017', loan_date='2024-10-23', expire_date='2024-11-06', renewable=False),
+    LibraryLoan(record_id='618578', type='Bok', title='Amorina', author='Anderberg, Bengt', year='2022', loan_date='2024-07-13', expire_date='2024-11-09', renewable=True),
+    LibraryLoan(record_id='489758', type='Bok', title='Stormarnas imperium', author='Maas, Sarah J', year='2019', loan_date='2024-07-29', expire_date='2024-11-09', renewable=True),
+    LibraryLoan(record_id='599900', type='Bok', title='If he had been with me', author='Nowlin, Laura', year='2019', loan_date='2024-09-28', expire_date='2024-11-09', renewable=False),
+    LibraryLoan(record_id='497617', type='Bok', title='Kingdom of ash', author='Maas, Sarah J', year='2018', loan_date='2024-10-22', expire_date='2024-11-19', renewable=False),
+  ])
+# ---
+# name: test_success_no_loans
+  list([
+    LibraryReservation(record_id='519954', type='Bok', title='Do you know Pippi Longstocking?', author='Lindgren, Astrid', year='2019', created_date='2024-11-09', expire_date='2026-11-09', queue_number='1', pickup_library='Stadsbiblioteket'),
+  ])
+# ---
+# name: test_success_no_reservations
+  list([
+    LibraryLoan(record_id='501688', type='Bok', title='The Rosie result', author='Simsion, Graeme', year='2019', loan_date='2025-01-22', expire_date='2025-03-14', renewable=True),
+    LibraryLoan(record_id='556230', type='Bok', title='Så jävla operfekt', author='Cederlund, Charlotte', year='2021', loan_date='2025-02-16', expire_date='2025-03-16', renewable=True),
+  ])
+# ---
+# name: test_success_reservation_to_pick_up
+  list([
+    LibraryLoan(record_id='417339', type='Bok', title='Glass sword', author='Aveyard, Victoria', year='2015', loan_date='2025-01-11', expire_date='2025-03-13', renewable=True),
+    LibraryLoan(record_id='488795', type='Bok', title='Finale', author='Garber, Stephanie', year='2019', loan_date='2025-02-19', expire_date='2025-03-19', renewable=True),
+    LibraryLoan(record_id='531601', type='Bok', title='Legendary', author='Garber, Stephanie', year='2018', loan_date='2025-02-19', expire_date='2025-03-19', renewable=False),
+  ])
+# ---
+# name: test_success_reservation_to_pick_up.1
+  list([
+    LibraryReservationReady(record_id='641909', type='Bok', title='Onyx storm', author='Yarros, Rebecca', year='2025', created_date='2025-01-04', pickup_date='2025-02-26', reservation_number='431', pickup_library=' Stadsbiblioteket'),
+  ])
+# ---

@@ -264,7 +264,7 @@ class ArenaClient:
                 except ArenaNotLoggedInError:
                     continue
                 return text
-        raise ArenaLoginError("Unknown login error")  # noqa: TRY003, EM101
+        raise ArenaLoginError
 
     def _raise_if_not_logged_in(self, text: str) -> None:
         soup = BeautifulSoup(text, "html.parser")
