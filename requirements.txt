@@ -1,5 +1,5 @@
 aioresponses==0.7.8
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
 colorlog==6.9.0
 homeassistant==2025.7.1
 pip>=21.3.1
