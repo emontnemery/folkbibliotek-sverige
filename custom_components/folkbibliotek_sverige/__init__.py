@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .axiell_arena_client import ArenaClient
 from .coordinator import FolkbibliotekSverigeDataUpdateCoordinator
@@ -38,7 +38,7 @@ async def async_setup_entry(
 ) -> bool:
     """Set up Folkbibliotek Sverige from a config entry."""
     client = ArenaClient(
-        session=async_get_clientsession(hass),
+        session=async_create_clientsession(hass),
         url=entry.data["url"],
         username=entry.data["username"],
         password=entry.data["password"],
