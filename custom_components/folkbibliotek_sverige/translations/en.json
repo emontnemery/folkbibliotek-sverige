@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/emontnemery/folkbibliotek-sverige",
+                "description": "If you need help with the configuration have a look here: {docs_url}",
                 "data": {
                     "host": "URL",
                     "name": "Name",
@@ -17,7 +17,22 @@
                 }
             },
             "reauth_confirm": {
-                "description": "If you need help with the configuration have a look here: https://github.com/emontnemery/folkbibliotek-sverige",
+                "description": "If you need help with the configuration have a look here: {docs_url}",
+                "data": {
+                    "host": "URL",
+                    "name": "Name",
+                    "password": "Password",
+                    "username": "Username"
+                },
+                "data_description": {
+                    "host": "URL of the library's Axiell Arena service",
+                    "name": "Name for the config entry, for example the name of the account holder",
+                    "password": "Your library account password (usually the same as your library card PIN)",
+                    "username": "Your library account username (usually your Swedish personal identity number)"
+                }
+            },
+            "reconfigure": {
+                "description": "If you need help with the configuration have a look here: {docs_url}",
                 "data": {
                     "host": "URL",
                     "name": "Name",

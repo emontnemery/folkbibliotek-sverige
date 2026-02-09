@@ -44,6 +44,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+DOCS_URL = "https://github.com/emontnemery/folkbibliotek-sverige"
+
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, str]:
     """
@@ -96,7 +98,10 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
 
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=STEP_USER_DATA_SCHEMA,
+            description_placeholders={"docs_url": DOCS_URL},
+            errors=errors,
         )
 
     async def async_step_reauth(
@@ -129,6 +134,7 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_USERNAME: config_entry_data[CONF_USERNAME],
                 },
             ),
+            description_placeholders={"docs_url": DOCS_URL},
             errors=errors,
         )
 
@@ -155,5 +161,6 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_USERNAME: config_entry_data[CONF_USERNAME],
                 },
             ),
+            description_placeholders={"docs_url": DOCS_URL},
             errors=errors,
         )
