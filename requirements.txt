@@ -6,4 +6,4 @@ pip>=21.3.1
 pytest-homeassistant-custom-component==0.13.314
 ruff==0.15.0
 uv==0.9.26
-voluptuous==0.15.2
+voluptuous==0.16.0
