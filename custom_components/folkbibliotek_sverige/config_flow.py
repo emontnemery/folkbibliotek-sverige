@@ -25,10 +25,10 @@ if TYPE_CHECKING:
 
 STEP_REAUTH_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_URL): selector.TextSelector(
+        vol.Optional(CONF_URL): selector.TextSelector(
             selector.TextSelectorConfig(read_only=True)
         ),
-        vol.Required(CONF_USERNAME): selector.TextSelector(
+        vol.Optional(CONF_USERNAME): selector.TextSelector(
             selector.TextSelectorConfig(read_only=True)
         ),
         vol.Required(CONF_PASSWORD): str,
@@ -132,6 +132,7 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
                 {
                     CONF_URL: config_entry_data[CONF_URL],
                     CONF_USERNAME: config_entry_data[CONF_USERNAME],
+                    CONF_PASSWORD: config_entry_data[CONF_PASSWORD],
                 },
             ),
             description_placeholders={"docs_url": DOCS_URL},
