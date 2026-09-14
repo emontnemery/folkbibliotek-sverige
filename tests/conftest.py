@@ -39,5 +39,7 @@ def mock_config_entry() -> MockConfigEntry:
             CONF_URL: BASE_URL,
             CONF_USERNAME: USERNAME,
         },
-        unique_id="user@host.com",
+        # The config flow does not set a unique ID, it relies on
+        # _async_abort_entries_match instead.
+        unique_id=None,
     )

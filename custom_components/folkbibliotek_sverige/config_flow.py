@@ -62,12 +62,14 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         )
 
         await client.get_account_overview()
-    except ArenaError:
-        return {"base": "cannot_connect"}
+    # The specific login failures must be caught before their ArenaError base
+    # class, otherwise they can never be reported.
     except ArenaAccountLockedError:
         return {"base": "account_locked"}
     except ArenaInvalidCredentialsError:
         return {"base": "invalid_credentials"}
+    except ArenaError:
+        return {"base": "cannot_connect"}
     except Exception:  # noqa: BLE001
         LOGGER.exception("Unexpected exception")
         return {"base": "unknown"}
