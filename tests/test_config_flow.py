@@ -2,30 +2,27 @@
 
 from unittest.mock import AsyncMock
 
-from aioresponses import aioresponses
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.const import CONF_NAME, CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.folkbibliotek_sverige.const import DOMAIN
 
-from . import BASE_URL, PASSWORD, USERNAME, load_fixture
+from . import BASE_URL, OVERVIEW_URL, PASSWORD, USERNAME, load_fixture
 
 
 @pytest.mark.usefixtures("enable_custom_integrations")
 async def test_user_flow(
     hass: HomeAssistant,
     mock_setup_entry: AsyncMock,
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
 ) -> None:
     """Test that the user flow works."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("logged_in.html"),
-    )
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("logged_in.html"))
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
@@ -60,13 +57,10 @@ async def test_user_flow(
 async def test_reauth_flow(
     hass: HomeAssistant,
     mock_config_entry: MockConfigEntry,
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
 ) -> None:
     """Test that the reauth flow works."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("logged_in.html"),
-    )
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("logged_in.html"))
 
     mock_config_entry.add_to_hass(hass)
 
@@ -80,6 +74,10 @@ async def test_reauth_flow(
         result["flow_id"],
         {CONF_PASSWORD: "new_password", CONF_URL: BASE_URL, CONF_USERNAME: USERNAME},
     )
+
+    # The flow reloads the entry; let the reload and its delayed
+    # storage write finish so no timer outlives the test.
+    await hass.async_block_till_done()
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reauth_successful"
@@ -95,13 +93,10 @@ async def test_reauth_flow(
 async def test_reconfigure_flow(
     hass: HomeAssistant,
     mock_config_entry: MockConfigEntry,
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
 ) -> None:
     """Test that the reconfigure flow works."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("logged_in.html"),
-    )
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("logged_in.html"))
 
     mock_config_entry.add_to_hass(hass)
 
@@ -115,6 +110,10 @@ async def test_reconfigure_flow(
         result["flow_id"],
         {CONF_PASSWORD: "new_password", CONF_URL: BASE_URL, CONF_USERNAME: USERNAME},
     )
+
+    # The flow reloads the entry; let the reload and its delayed
+    # storage write finish so no timer outlives the test.
+    await hass.async_block_till_done()
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"

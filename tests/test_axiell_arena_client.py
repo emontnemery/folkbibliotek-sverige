@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import re
+import asyncio
 from typing import TYPE_CHECKING
 
-import aiohttp
-from aioresponses import aioresponses
 import pytest
 
 from custom_components.folkbibliotek_sverige.axiell_arena_client import (
@@ -16,47 +14,41 @@ from custom_components.folkbibliotek_sverige.axiell_arena_client import (
     ArenaLoginError,
 )
 
-from . import load_fixture
+from . import BASE_URL, OVERVIEW_URL, PASSWORD, USERNAME, load_fixture
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncGenerator, Generator
+    from collections.abc import AsyncGenerator
 
+    from pytest_homeassistant_custom_component.test_util.aiohttp import (
+        AiohttpClientMocker,
+    )
     from syrupy import SnapshotAssertion
 
-BASE_URL = "https://folkbiblioteken.lund.se"
-USERNAME = "username"
-PASSWORD = "password"
+LOGIN_PARAMS = {"p_p_id": "patronLogin_WAR_arenaportlet"}
+
+# Expected request counts: one GET of the overview page, plus the login POSTs.
+# These are spelled out rather than derived from the client's LOGIN_ATTEMPTS so
+# that changing the retry budget has to be an explicit decision here too.
+CALLS_ONE_LOGIN = 2
+CALLS_EXHAUSTED_LOGINS = 4
 
 
 @pytest.fixture
-async def client() -> AsyncGenerator[ArenaClient]:
+async def client(aioclient_mock: AiohttpClientMocker) -> AsyncGenerator[ArenaClient]:
     """Return an Axiell Arena client."""
-    async with (
-        aiohttp.ClientSession() as session,
-    ):
-        client_ = ArenaClient(
+    async with aioclient_mock.create_session(asyncio.get_running_loop()) as session:
+        yield ArenaClient(
             session=session, url=BASE_URL, username=USERNAME, password=PASSWORD
         )
-        yield client_
-
-
-@pytest.fixture(name="responses")
-def aioresponses_fixture() -> Generator[aioresponses]:
-    """Return aioresponses fixture."""
-    with aioresponses() as mocked_responses:
-        yield mocked_responses
 
 
 async def test_success(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
     snapshot: SnapshotAssertion,
 ) -> None:
     """Test successful retrieval of account overview."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("logged_in.html"),
-    )
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("logged_in.html"))
 
     overview = await client.get_account_overview()
     assert client.get_loans(overview) == snapshot
@@ -65,15 +57,12 @@ async def test_success(
 
 
 async def test_success_no_loans(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
     snapshot: SnapshotAssertion,
 ) -> None:
     """Test successful retrieval of account overview with no checked out media."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("logged_in_no_loans.html"),
-    )
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("logged_in_no_loans.html"))
 
     overview = await client.get_account_overview()
     assert client.get_loans(overview) == []
@@ -82,14 +71,13 @@ async def test_success_no_loans(
 
 
 async def test_success_no_reservations(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
     snapshot: SnapshotAssertion,
 ) -> None:
     """Test successful retrieval of account overview with no holds."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("logged_in_no_reservations.html"),
+    aioclient_mock.get(
+        OVERVIEW_URL, text=load_fixture("logged_in_no_reservations.html")
     )
 
     overview = await client.get_account_overview()
@@ -99,14 +87,13 @@ async def test_success_no_reservations(
 
 
 async def test_success_reservation_to_pick_up(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
     snapshot: SnapshotAssertion,
 ) -> None:
     """Test successful retrieval of account overview with hold to pick up."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("logged_in_reservation_to_pick_up.html"),
+    aioclient_mock.get(
+        OVERVIEW_URL, text=load_fixture("logged_in_reservation_to_pick_up.html")
     )
 
     overview = await client.get_account_overview()
@@ -116,20 +103,14 @@ async def test_success_reservation_to_pick_up(
 
 
 async def test_success_need_login(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
     snapshot: SnapshotAssertion,
 ) -> None:
     """Test log in."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("not_logged_in.html"),
-    )
-    escaped_url = re.escape(f"{BASE_URL}/protected/my-account/overview")
-    responses.post(
-        re.compile(rf"^{escaped_url}\?_patronLogin_WAR.*"),
-        body=load_fixture("logged_in.html"),
-        repeat=True,
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("not_logged_in.html"))
+    aioclient_mock.post(
+        OVERVIEW_URL, params=LOGIN_PARAMS, text=load_fixture("logged_in.html")
     )
 
     overview = await client.get_account_overview()
@@ -137,60 +118,64 @@ async def test_success_need_login(
     assert client.get_active_reservations(overview) == []
     assert client.get_ready_reservations(overview) == []
 
+    # One GET, then a single login POST carrying the configured credentials.
+    assert aioclient_mock.call_count == CALLS_ONE_LOGIN
+    method, _url, data, _headers = aioclient_mock.mock_calls[1]
+    assert method == "POST"
+    assert data["openTextUsernameContainer:openTextUsername"] == USERNAME
+    assert data["textPassword"] == PASSWORD
+
 
 async def test_no_login(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
 ) -> None:
     """Test no log in."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("not_logged_in.html"),
-    )
-    escaped_url = re.escape(f"{BASE_URL}/protected/my-account/overview")
-    responses.post(
-        re.compile(rf"^{escaped_url}\?_patronLogin_WAR.*"),
-        body=load_fixture("not_logged_in.html"),
-        repeat=True,
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("not_logged_in.html"))
+    aioclient_mock.post(
+        OVERVIEW_URL, params=LOGIN_PARAMS, text=load_fixture("not_logged_in.html")
     )
 
     with pytest.raises(ArenaLoginError):
         await client.get_account_overview()
 
+    # One GET, then three login POSTs before giving up.
+    assert aioclient_mock.call_count == CALLS_EXHAUSTED_LOGINS
+
 
 async def test_account_locked(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
 ) -> None:
     """Test account is locked."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("not_logged_in.html"),
-    )
-    escaped_url = re.escape(f"{BASE_URL}/protected/my-account/overview")
-    responses.post(
-        re.compile(rf"^{escaped_url}\?_patronLogin_WAR.*"),
-        body=load_fixture("login_failed_too_many_attempts.html"),
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("not_logged_in.html"))
+    aioclient_mock.post(
+        OVERVIEW_URL,
+        params=LOGIN_PARAMS,
+        text=load_fixture("login_failed_too_many_attempts.html"),
     )
 
     with pytest.raises(ArenaAccountLockedError):
         await client.get_account_overview()
 
+    # A locked account is terminal: one GET, one POST, no retries.
+    assert aioclient_mock.call_count == CALLS_ONE_LOGIN
+
 
 async def test_wrong_credentials(
-    responses: aioresponses,
+    aioclient_mock: AiohttpClientMocker,
     client: ArenaClient,
 ) -> None:
     """Test account wrong password."""
-    responses.get(
-        f"{BASE_URL}/protected/my-account/overview",
-        body=load_fixture("not_logged_in.html"),
-    )
-    escaped_url = re.escape(f"{BASE_URL}/protected/my-account/overview")
-    responses.post(
-        re.compile(rf"^{escaped_url}\?_patronLogin_WAR.*"),
-        body=load_fixture("login_failed_wrong_credentials.html"),
+    aioclient_mock.get(OVERVIEW_URL, text=load_fixture("not_logged_in.html"))
+    aioclient_mock.post(
+        OVERVIEW_URL,
+        params=LOGIN_PARAMS,
+        text=load_fixture("login_failed_wrong_credentials.html"),
     )
 
     with pytest.raises(ArenaInvalidCredentialsError):
         await client.get_account_overview()
+
+    # Wrong credentials are terminal: one GET, one POST, no retries.
+    assert aioclient_mock.call_count == CALLS_ONE_LOGIN

@@ -6,6 +6,8 @@ BASE_URL = "https://folkbiblioteken.lund.se"
 USERNAME = "username"
 PASSWORD = "password"
 
+OVERVIEW_URL = f"{BASE_URL}/protected/my-account/overview"
+
 
 def load_fixture(filename: str) -> str:
     """Load a fixture."""
