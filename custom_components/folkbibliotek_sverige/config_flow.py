@@ -114,12 +114,12 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reauth_confirm(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the initial step."""
+        """Handle the reauth step."""
         errors: dict[str, str] = {}
         config_entry_data = self._get_reauth_entry().data
 
         if user_input is not None and not (
-            errors := await validate_input(self.hass, user_input)
+            errors := await validate_input(self.hass, config_entry_data | user_input)
         ):
             return self.async_update_reload_and_abort(
                 self._get_reauth_entry(), data_updates=user_input
@@ -147,7 +147,7 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
         config_entry_data = self._get_reconfigure_entry().data
 
         if user_input is not None and not (
-            errors := await validate_input(self.hass, user_input)
+            errors := await validate_input(self.hass, config_entry_data | user_input)
         ):
             return self.async_update_reload_and_abort(
                 self._get_reconfigure_entry(), data_updates=user_input
@@ -160,6 +160,7 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
                 {
                     CONF_URL: config_entry_data[CONF_URL],
                     CONF_USERNAME: config_entry_data[CONF_USERNAME],
+                    CONF_PASSWORD: config_entry_data[CONF_PASSWORD],
                 },
             ),
             description_placeholders={"docs_url": DOCS_URL},
