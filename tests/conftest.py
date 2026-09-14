@@ -7,6 +7,8 @@ from unittest.mock import AsyncMock, patch
 from homeassistant.const import CONF_NAME, CONF_PASSWORD, CONF_URL, CONF_USERNAME
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.syrupy import HomeAssistantSnapshotExtension
+from syrupy.assertion import SnapshotAssertion
 
 from custom_components.folkbibliotek_sverige.const import DOMAIN
 
@@ -15,6 +17,12 @@ from . import BASE_URL, PASSWORD, USERNAME
 _LOGGER = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
+
+
+@pytest.fixture
+def snapshot(snapshot: SnapshotAssertion) -> SnapshotAssertion:
+    """Return snapshot assertion fixture with the Home Assistant extension."""
+    return snapshot.use_extension(HomeAssistantSnapshotExtension)
 
 
 @pytest.fixture
