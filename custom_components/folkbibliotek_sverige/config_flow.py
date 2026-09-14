@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from aiohttp import ClientError
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_NAME, CONF_PASSWORD, CONF_URL, CONF_USERNAME
 from homeassistant.helpers import selector
@@ -68,7 +69,9 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         return {"base": "account_locked"}
     except ArenaInvalidCredentialsError:
         return {"base": "invalid_credentials"}
-    except ArenaError:
+    # A wrong URL, a site which is down or a flaky network are expected
+    # conditions, not bugs, so they must not end up in the catch-all below.
+    except (ArenaError, ClientError, TimeoutError):
         return {"base": "cannot_connect"}
     except Exception:  # noqa: BLE001
         LOGGER.exception("Unexpected exception")
@@ -146,24 +149,31 @@ class FolkbibliotekSverigeConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle reconfigure."""
         errors: dict[str, str] = {}
-        config_entry_data = self._get_reconfigure_entry().data
+        reconfigure_entry = self._get_reconfigure_entry()
 
-        if user_input is not None and not (
-            errors := await validate_input(self.hass, config_entry_data | user_input)
-        ):
-            return self.async_update_reload_and_abort(
-                self._get_reconfigure_entry(), data_updates=user_input
+        if user_input is not None:
+            # Moving an entry onto an account which another entry already
+            # tracks must be rejected. The helper ignores the entry which is
+            # being reconfigured, so keeping the account unchanged is allowed.
+            self._async_abort_entries_match(
+                {
+                    CONF_URL: user_input[CONF_URL],
+                    CONF_USERNAME: user_input[CONF_USERNAME],
+                }
             )
+            if not (errors := await validate_input(self.hass, user_input)):
+                return self.async_update_reload_and_abort(
+                    reconfigure_entry,
+                    title=user_input[CONF_NAME],
+                    data_updates=user_input,
+                )
 
         return self.async_show_form(
             step_id="reconfigure",
+            # Reconfigure offers the same writable fields as the initial step,
+            # so the URL, username and name can all be corrected in place.
             data_schema=self.add_suggested_values_to_schema(
-                STEP_REAUTH_DATA_SCHEMA,
-                {
-                    CONF_URL: config_entry_data[CONF_URL],
-                    CONF_USERNAME: config_entry_data[CONF_USERNAME],
-                    CONF_PASSWORD: config_entry_data[CONF_PASSWORD],
-                },
+                STEP_USER_DATA_SCHEMA, reconfigure_entry.data
             ),
             description_placeholders={"docs_url": DOCS_URL},
             errors=errors,

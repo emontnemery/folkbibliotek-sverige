@@ -4,52 +4,50 @@
             "user": {
                 "description": "If you need help with the configuration have a look here: {docs_url}",
                 "data": {
-                    "host": "URL",
                     "name": "Name",
                     "password": "Password",
+                    "url": "URL",
                     "username": "Username"
                 },
                 "data_description": {
-                    "host": "URL of the library's Axiell Arena service",
                     "name": "Name for the config entry, for example the name of the account holder",
                     "password": "Your library account password (usually the same as your library card PIN)",
+                    "url": "URL of the library's Axiell Arena service",
                     "username": "Your library account username (usually your Swedish personal identity number)"
                 }
             },
             "reauth_confirm": {
                 "description": "If you need help with the configuration have a look here: {docs_url}",
                 "data": {
-                    "host": "URL",
-                    "name": "Name",
                     "password": "Password",
+                    "url": "URL",
                     "username": "Username"
                 },
                 "data_description": {
-                    "host": "URL of the library's Axiell Arena service",
-                    "name": "Name for the config entry, for example the name of the account holder",
                     "password": "Your library account password (usually the same as your library card PIN)",
+                    "url": "URL of the library's Axiell Arena service",
                     "username": "Your library account username (usually your Swedish personal identity number)"
                 }
             },
             "reconfigure": {
                 "description": "If you need help with the configuration have a look here: {docs_url}",
                 "data": {
-                    "host": "URL",
                     "name": "Name",
                     "password": "Password",
+                    "url": "URL",
                     "username": "Username"
                 },
                 "data_description": {
-                    "host": "URL of the library's Axiell Arena service",
                     "name": "Name for the config entry, for example the name of the account holder",
                     "password": "Your library account password (usually the same as your library card PIN)",
+                    "url": "URL of the library's Axiell Arena service",
                     "username": "Your library account username (usually your Swedish personal identity number)"
                 }
             }
         },
         "error": {
             "account_locked": "The account has been locked after too many login attempts, please contact your library for assistance.",
-            "cannot_connect": "The expected login form could not be found. Please check the URL and try again.",
+            "cannot_connect": "Failed to log in to the library's Axiell Arena service. Please check the URL and try again.",
             "invalid_credentials": "The username or password is not valid.",
             "unknown": "Unexpected error"
         },
