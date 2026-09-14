@@ -150,7 +150,8 @@ class FolkbibliotekSverigeHolds(FolkbibliotekSverigeTodoListEntity):
                 uid=f"{reservation.record_id}",
                 status=TodoItemStatus.NEEDS_ACTION,
                 due=datetime.date.fromisoformat(reservation.pickup_date),
-                description=f"Pickup #{reservation.reservation_number} at {reservation.pickup_library}",
+                description=f"Pickup #{reservation.reservation_number} at "
+                f"{reservation.pickup_library}",
             )
             for reservation in self.coordinator.data.waiting_reservations
         )
